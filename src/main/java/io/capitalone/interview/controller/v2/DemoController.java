@@ -65,8 +65,7 @@ public class DemoController {
 
 
         }
-
-
+        
         return codingAssignmentService.getMonthlyIncomeAndExpenses(excludeTransactions);
     }
 
