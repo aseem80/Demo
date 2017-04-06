@@ -1,15 +1,21 @@
 package io.capitalone.interview.service.v2;
 
+import io.capitalone.interview.exception.v2.DemoServiceException;
 import io.capitalone.interview.restClient.v2.LevelMoneyClient;
 import io.capitalone.interview.restClient.v2.LevelMoneyClientImpl;
 import io.capitalone.interview.schema.v2.ApiAuthentication;
 import io.capitalone.interview.schema.v2.Budget;
+import io.capitalone.interview.schema.v2.Error;
 import io.capitalone.interview.schema.v2.Transaction;
 import io.capitalone.interview.schema.v2.Transactions;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ReflectionUtils;
 
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -44,51 +50,82 @@ public class CodingAssignmentServiceImpl implements CodingAssignmentService {
     LevelMoneyClient client;
 
     @Override
-    public Map<String,Budget> getMonthlyIncomeAndExpenses() {
+    public Map<String,Budget> getMonthlyIncomeAndExpenses(Map<String, List<Object>> excludeTransactions) {
 
         Transactions transactions = client.getAllTransactions(authRequestBody);
         List<Transaction> txns = transactions.getTransactions();
- //       txns.sort((Transaction t1, Transaction t2)->t2.getTransactionTime().compareTo(t1.getTransactionTime()));
         Map<String,Budget> monthlyIncomeAndSpent = new LinkedHashMap<>();
-        txns.stream().forEach( txn -> {
-            Date txnTime = txn.getTransactionTime();
-            String yearMonthFormatValue = sdf.format(txnTime);
-            Budget budget = monthlyIncomeAndSpent.get(yearMonthFormatValue);
-            if(budget!=null) {
-
-                if(txn.getAmount().compareTo( BigDecimal.ZERO ) < 0) {
-                    budget = budget.addSpent(txn.getAmount().abs());
-                } else {
-                    budget = budget.addIncome(txn.getAmount());
-                }
-            } else {
-                budget = new Budget();
-                if(txn.getAmount().compareTo( BigDecimal.ZERO ) < 0) {
-                    budget.setSpent(txn.getAmount().abs());
-                } else {
-                    budget.setIncome(txn.getAmount());
-                }
-
-            }
-            //Map operation Outside IF Block since Changed Value needs to be put back again
-            monthlyIncomeAndSpent.put(yearMonthFormatValue, budget);
-
-
-
-        } );
-
-        Budget averageBudget = new Budget();
-        if(!monthlyIncomeAndSpent.isEmpty()) {
-            averageBudget = getAverageBudget(monthlyIncomeAndSpent);
+        if(!txns.isEmpty()) {
+            setMonthlyBudget(monthlyIncomeAndSpent, txns, excludeTransactions );
+            Budget averageBudget = new Budget();
+            averageBudget = getAverageBudget( monthlyIncomeAndSpent );
+            monthlyIncomeAndSpent.put( AVERAGE_KEY, averageBudget );
         }
-
-        monthlyIncomeAndSpent.put( AVERAGE_KEY, averageBudget);
 
         return monthlyIncomeAndSpent;
 
 
     }
 
+
+    private void setMonthlyBudget(Map<String,Budget> monthlyIncomeAndSpent, List<Transaction> txns,
+            Map<String, List<Object>> excludeTransactions) {
+
+
+
+        txns.stream().forEach( txn -> {
+            boolean filter = false;
+            if(null!=excludeTransactions && !excludeTransactions.isEmpty()) {
+                for (String fieldName : excludeTransactions.keySet( )) {
+                    try {
+                        PropertyDescriptor pd = new PropertyDescriptor( fieldName, Transaction.class );
+                        Method getter = pd.getReadMethod( );
+                        Object fieldValue = getter.invoke( txn );
+                        if(excludeTransactions.get(fieldName).contains(fieldValue)) {
+                            filter = true;
+                            LOGGER.info("filter : true for field Value : " + fieldValue);
+
+                        }
+                    } catch(Exception e) {
+                        LOGGER.error("Exception encountered for getting field value : " + ExceptionUtils
+                                .getStackTrace(e));
+                        throw new DemoServiceException( new Error("Service exception encountered", -1) );
+
+                    }
+
+
+                }
+            }
+                    if(!filter) {
+                        Date txnTime = txn.getTransactionTime( );
+                        String yearMonthFormatValue = sdf.format( txnTime );
+                        Budget budget = monthlyIncomeAndSpent.get( yearMonthFormatValue );
+                        if (budget != null) {
+                            if (txn.getAmount( ).compareTo( BigDecimal.ZERO ) < 0) {
+                                budget = budget.addSpent( txn.getAmount( ).abs( ) );
+                            }
+                            else {
+                                budget = budget.addIncome( txn.getAmount( ) );
+                            }
+                        }
+                        else {
+                            budget = new Budget( );
+                            if (txn.getAmount( ).compareTo( BigDecimal.ZERO ) < 0) {
+                                budget.setSpent( txn.getAmount( ).abs( ) );
+                            }
+                            else {
+                                budget.setIncome( txn.getAmount( ) );
+                            }
+
+                        }
+                        //Map operation Outside IF Block since Changed Value needs to be put back again
+                        monthlyIncomeAndSpent.put( yearMonthFormatValue, budget );
+                    }
+
+        } );
+
+
+    }
 
     private Budget getAverageBudget(Map<String,Budget> monthlyIncomeAndSpent) {
         BigDecimal totalMonthlyIncome = BigDecimal.ZERO;

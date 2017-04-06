@@ -65,9 +65,6 @@ public class LevelMoneyClientImpl implements LevelMoneyClient{
                 throw e;
             }
         }
-        finally {
-            client.close();
-        }
         return transactions;
     }
 }

@@ -7,7 +7,6 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class Error {
 
-    private static final String MESSAGE_DELIMITER = "::";
     private String parameter;
     private String message;
     private Integer errorCode;
@@ -26,6 +25,13 @@ public class Error {
         this.parameter = parameter;
         this.message = message;
         this.errorCode = errorCode;
+    }
+
+    public Error(String parameter, String message, Integer errorCode, Object invalidValue) {
+        this.parameter = parameter;
+        this.message = message;
+        this.errorCode = errorCode;
+        this.invalidValue = invalidValue;
     }
 
     public String getParameter() {
