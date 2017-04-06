@@ -1,6 +1,7 @@
 package io.capitalone.interview.service.v2;
 
 import io.capitalone.interview.exception.v2.DemoServiceException;
+import io.capitalone.interview.exception.v2.DemoServiceValidationException;
 import io.capitalone.interview.restClient.v2.LevelMoneyClient;
 import io.capitalone.interview.restClient.v2.LevelMoneyClientImpl;
 import io.capitalone.interview.schema.v2.ApiAuthentication;
@@ -12,7 +13,6 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ReflectionUtils;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
@@ -20,13 +20,10 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by aseem80 on 4/5/17.

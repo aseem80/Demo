@@ -8,18 +8,18 @@ import java.util.List;
 /**
  * Created by aseem80 on 4/6/17.
  */
-public class DemoServiceException extends RuntimeException{
+public class DemoServiceValidationException extends RuntimeException {
 
     List<Error> errors = new ArrayList<>(  );
 
-    public DemoServiceException() {
+    public DemoServiceValidationException() {
     }
 
-    public DemoServiceException(Error error) {
+    public DemoServiceValidationException(Error error) {
         errors.add(error);
     }
 
-    public DemoServiceException(List<Error> errors) {
+    public DemoServiceValidationException(List<Error> errors) {
         this.errors = errors;
     }
 
