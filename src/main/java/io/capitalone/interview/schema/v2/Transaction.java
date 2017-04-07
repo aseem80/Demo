@@ -40,6 +40,21 @@ public class Transaction {
     public Transaction() {
     }
 
+    public Transaction(BigDecimal amount, boolean isPending, Long appregationTimeInUnixEpochMillis, String accountId,
+            Long clearDateInUnixEpochMillis, String transactionId, String rawMerchant, String categorization, String
+            merchant, Date transactionTime) {
+        this.amount = amount;
+        this.isPending = isPending;
+        this.appregationTimeInUnixEpochMillis = appregationTimeInUnixEpochMillis;
+        this.accountId = accountId;
+        this.clearDateInUnixEpochMillis = clearDateInUnixEpochMillis;
+        this.transactionId = transactionId;
+        this.rawMerchant = rawMerchant;
+        this.categorization = categorization;
+        this.merchant = merchant;
+        this.transactionTime = transactionTime;
+    }
+
     public BigDecimal getAmount() {
         return amount;
     }

@@ -21,12 +21,10 @@ import javax.ws.rs.client.ClientBuilder;
 @ComponentScan(basePackages = "io.capitalone.interview")
 public class CodingAssignmentAppConfig {
 
-    @Bean
+    @Bean(destroyMethod="close")
     public Client getClient() {
         Client client = ClientBuilder.newClient().register(JacksonJsonProvider.class);
         return client;
-
-
     }
 
 }
