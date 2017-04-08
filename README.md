@@ -23,6 +23,11 @@ The application can be run as per following:-
 2. Command line (After jar is built with mvn clean install) :- java -jar Demo-1.0-SNAPSHOT.jar
 3. Intellij/Eclipse (Run CodingAssignmentApp)
 
+### GetAllTransactions DataSource###
+
+The application used a Rest Client to get All transactions and has been configured to Retry 3 times with Back-off-policy
+in case of any IOException(Connect Timeout or ReadTime out)
+
 ### Rest End Points ###
 
 1. Request HTTP GET :- http://localhost:8080/demo/v2/monthlySummary
@@ -51,7 +56,7 @@ The application can be run as per following:-
 
   5. Request HTTP GET:- http://localhost:8080/demo/v2/creditCardPayments
   This end point list all credit card payments detected (part of request in assignment)
-  Sample Response(With one transaction coupl) :-
+  Sample Response(With one transaction couple) :-
   {
     "credit_card_payments": [
       {

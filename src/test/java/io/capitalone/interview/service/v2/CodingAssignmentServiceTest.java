@@ -21,9 +21,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -45,63 +43,167 @@ public class CodingAssignmentServiceTest {
     private CodingAssignmentService codingAssignmentService;
 
 
-
     @Test
     public void getMonthlyIncomeAndExpenses() {
-        Mockito.when(client.getAllTransactions(any( ApiAuthentication.class ) )).thenReturn(getMockTransactions());
-        Map<String,Budget> map = codingAssignmentService.getMonthlyIncomeAndExpenses(null,null);
+        Mockito.when(client.getAllTransactions(any(ApiAuthentication.class))).thenReturn(getMockTransactions());
+        Map<String, Budget> map = codingAssignmentService.getMonthlyIncomeAndExpenses(null, null);
         assertEquals(3, map.size());
-        Budget month1Budget = map.get( "2017-01" );
+        Budget month1Budget = map.get("2017-01");
         assertNotNull(month1Budget);
-        assertTrue( new BigDecimal( 2500 ).compareTo(month1Budget.getIncome()) == 0);
-        assertTrue( new BigDecimal( 520 ).compareTo(month1Budget.getSpent()) == 0);
+        assertTrue(new BigDecimal(2500).compareTo(month1Budget.getIncome()) == 0);
+        assertTrue(new BigDecimal(520).compareTo(month1Budget.getSpent()) == 0);
 
-        Budget month2Budget = map.get( "2017-02" );
+        Budget month2Budget = map.get("2017-02");
         assertNotNull(month2Budget);
-        assertTrue( new BigDecimal( 2000 ).compareTo(month2Budget.getIncome()) == 0);
-        assertTrue( new BigDecimal( 0 ).compareTo(month2Budget.getSpent()) == 0);
+        assertTrue(new BigDecimal(2000).compareTo(month2Budget.getIncome()) == 0);
+        assertTrue(new BigDecimal(0).compareTo(month2Budget.getSpent()) == 0);
 
-        Budget average = map.get( "average" );
+        Budget average = map.get("average");
 
         assertNotNull(average);
-        assertTrue( new BigDecimal( 2250 ).compareTo(average.getIncome()) == 0);
-        assertTrue( new BigDecimal( 260 ).compareTo(average.getSpent()) == 0);
+        assertTrue(new BigDecimal(2250).compareTo(average.getIncome()) == 0);
+        assertTrue(new BigDecimal(260).compareTo(average.getSpent()) == 0);
 
 
-        Mockito.verify(client, Mockito.times( 1 )).getAllTransactions(any( ApiAuthentication.class ));
+        Mockito.verify(client, Mockito.times(1)).getAllTransactions(any(ApiAuthentication.class));
 
+    }
+
+    @Test
+    public void getMonthlyIncomeAndExpensesIgnoreDonuts() {
+        Mockito.when(client.getAllTransactions(any(ApiAuthentication.class))).thenReturn(getMockTransactions());
+        Map<String, List<Object>> excludeTransactions = new HashMap<>();
+        excludeTransactions.put("rawMerchant", Arrays.asList(new String[]{"Krispy Kreme Donuts"}));
+        Map<String, Budget> map = codingAssignmentService.getMonthlyIncomeAndExpenses(excludeTransactions, null);
+        assertEquals(3, map.size());
+        Budget month1Budget = map.get("2017-01");
+        assertNotNull(month1Budget);
+        assertTrue(new BigDecimal(2500).compareTo(month1Budget.getIncome()) == 0);
+        //Donut Transaction is excluded now
+        assertTrue(new BigDecimal(500).compareTo(month1Budget.getSpent()) == 0);
+
+        Budget month2Budget = map.get("2017-02");
+        assertNotNull(month2Budget);
+        assertTrue(new BigDecimal(2000).compareTo(month2Budget.getIncome()) == 0);
+        assertTrue(new BigDecimal(0).compareTo(month2Budget.getSpent()) == 0);
+
+        Budget average = map.get("average");
+
+        assertNotNull(average);
+        assertTrue(new BigDecimal(2250).compareTo(average.getIncome()) == 0);
+        assertTrue(new BigDecimal(250).compareTo(average.getSpent()) == 0);
+
+
+        Mockito.verify(client, Mockito.times(1)).getAllTransactions(any(ApiAuthentication.class));
+
+    }
+
+    @Test
+    public void getMonthlyIncomeAndExpensesIgnoreCreditCardAndDonuts() {
+        Mockito.when(client.getAllTransactions(any(ApiAuthentication.class))).thenReturn(getMockTransactionsWithSomeCreditCardTransactions());
+        Map<String, List<Object>> excludeTransactions = new HashMap<>();
+        excludeTransactions.put("rawMerchant", Arrays.asList(new String[]{"Krispy Kreme Donuts"}));
+        Map<String, Budget> map = codingAssignmentService.getMonthlyIncomeAndExpenses(excludeTransactions, true);
+        assertEquals(3, map.size());
+        Budget month1Budget = map.get("2017-01");
+        assertNotNull(month1Budget);
+        assertTrue(new BigDecimal(2500).compareTo(month1Budget.getIncome()) == 0);
+        //Donut Transaction is excluded now
+        assertTrue(new BigDecimal(500).compareTo(month1Budget.getSpent()) == 0);
+
+        Budget month2Budget = map.get("2017-02");
+        assertNotNull(month2Budget);
+        assertTrue(new BigDecimal(2000).compareTo(month2Budget.getIncome()) == 0);
+        assertTrue(new BigDecimal(0).compareTo(month2Budget.getSpent()) == 0);
+
+        Budget average = map.get("average");
+
+        assertNotNull(average);
+        assertTrue(new BigDecimal(2250).compareTo(average.getIncome()) == 0);
+        assertTrue(new BigDecimal(250).compareTo(average.getSpent()) == 0);
+
+
+        Mockito.verify(client, Mockito.times(1)).getAllTransactions(any(ApiAuthentication.class));
+
+    }
+
+    private Transactions getMockTransactionsWithSomeCreditCardTransactions() {
+        Transactions transactions = new Transactions();
+        transactions.setError("no-error");
+        List<Transaction> txns = new ArrayList<>();
+        Transaction incomeTxn1 = new Transaction();
+        incomeTxn1.setAmount(new BigDecimal(1000));
+        incomeTxn1.setTransactionTime(new DateTime(2017, 1, 1, 0, 0, 0).toDate());
+        txns.add(incomeTxn1);
+
+
+        Transaction spentTxn1 = new Transaction();
+        spentTxn1.setAmount(new BigDecimal(-500));
+        spentTxn1.setTransactionTime(new DateTime(2017, 1, 2, 0, 0, 0).toDate());
+        txns.add(spentTxn1);
+
+        Transaction incomeTxn2 = new Transaction();
+        incomeTxn2.setAmount(new BigDecimal(1500));
+        incomeTxn2.setTransactionTime(new DateTime(2017, 1, 15, 0, 0, 0).toDate());
+        txns.add(incomeTxn2);
+
+        Transaction creditCardPayment1 = new Transaction();
+        creditCardPayment1.setAmount(new BigDecimal(-2000));
+        creditCardPayment1.setTransactionTime(new DateTime(2017, 1, 15, 0, 0, 0).toDate());
+        txns.add(creditCardPayment1);
+
+        Transaction creditCardPayment2 = new Transaction();
+        creditCardPayment2.setAmount(new BigDecimal(2000));
+        creditCardPayment2.setTransactionTime(new DateTime(2017, 1, 15, 12, 0, 0).toDate());
+        txns.add(creditCardPayment2);
+
+        Transaction incomeTxn3 = new Transaction();
+        incomeTxn3.setAmount(new BigDecimal(2000));
+        incomeTxn3.setTransactionTime(new DateTime(2017, 2, 15, 0, 0, 0).toDate());
+        txns.add(incomeTxn3);
+
+
+        Transaction spentDonutTxn1 = new Transaction();
+        spentDonutTxn1.setAmount(new BigDecimal(-20));
+        spentDonutTxn1.setTransactionTime(new DateTime(2017, 1, 2, 0, 0, 0).toDate());
+        spentDonutTxn1.setRawMerchant("Krispy Kreme Donuts");
+        txns.add(spentDonutTxn1);
+
+        transactions.setTransactions(txns);
+        return transactions;
     }
 
     private Transactions getMockTransactions() {
         Transactions transactions = new Transactions();
-        transactions.setError( "no-error" );
+        transactions.setError("no-error");
         List<Transaction> txns = new ArrayList<>();
         Transaction incomeTxn1 = new Transaction();
-        incomeTxn1.setAmount( new BigDecimal( 1000 ) );
-        incomeTxn1.setTransactionTime( new DateTime(2017,1,1,0,0,0).toDate() );
-        txns.add( incomeTxn1 );
+        incomeTxn1.setAmount(new BigDecimal(1000));
+        incomeTxn1.setTransactionTime(new DateTime(2017, 1, 1, 0, 0, 0).toDate());
+        txns.add(incomeTxn1);
 
 
         Transaction spentTxn1 = new Transaction();
-        spentTxn1.setAmount( new BigDecimal( -500 ) );
-        spentTxn1.setTransactionTime( new DateTime(2017,1,2,0,0,0).toDate() );
-        txns.add( spentTxn1 );
+        spentTxn1.setAmount(new BigDecimal(-500));
+        spentTxn1.setTransactionTime(new DateTime(2017, 1, 2, 0, 0, 0).toDate());
+        txns.add(spentTxn1);
 
         Transaction incomeTxn2 = new Transaction();
-        incomeTxn2.setAmount( new BigDecimal( 1500 ) );
-        incomeTxn2.setTransactionTime( new DateTime(2017,1,15,0,0,0).toDate() );
-        txns.add( incomeTxn2 );
+        incomeTxn2.setAmount(new BigDecimal(1500));
+        incomeTxn2.setTransactionTime(new DateTime(2017, 1, 15, 0, 0, 0).toDate());
+        txns.add(incomeTxn2);
 
         Transaction incomeTxn3 = new Transaction();
-        incomeTxn3.setAmount( new BigDecimal( 2000 ) );
-        incomeTxn3.setTransactionTime( new DateTime(2017,2,15,0,0,0).toDate() );
-        txns.add( incomeTxn3 );
+        incomeTxn3.setAmount(new BigDecimal(2000));
+        incomeTxn3.setTransactionTime(new DateTime(2017, 2, 15, 0, 0, 0).toDate());
+        txns.add(incomeTxn3);
 
 
         Transaction spentDonutTxn1 = new Transaction();
-        spentDonutTxn1.setAmount( new BigDecimal( -20 ) );
-        spentDonutTxn1.setTransactionTime( new DateTime(2017,1,2,0,0,0).toDate() );
-        txns.add( spentDonutTxn1 );
+        spentDonutTxn1.setAmount(new BigDecimal(-20));
+        spentDonutTxn1.setTransactionTime(new DateTime(2017, 1, 2, 0, 0, 0).toDate());
+        spentDonutTxn1.setRawMerchant("Krispy Kreme Donuts");
+        txns.add(spentDonutTxn1);
 
         transactions.setTransactions(txns);
         return transactions;
