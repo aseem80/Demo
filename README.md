@@ -32,6 +32,7 @@ in case of any IOException(Connect Timeout or ReadTime out)
 
 1. Request HTTP GET :- http://localhost:8080/demo/v2/monthlySummary
  Sample Response :-
+ ```json
  {
    "2014-10": {
      "spent": "$15784400.00",
@@ -42,6 +43,7 @@ in case of any IOException(Connect Timeout or ReadTime out)
        "income": "$33181450.00"
        }
   }
+  ```
   Average is calculated by adding monthly income and expense and dividing by number of periods
 
   2. Request HTTP GET:- http://localhost:8080/demo/v2/monthlySummary?ignore-category=donuts
