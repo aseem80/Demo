@@ -59,6 +59,7 @@ in case of any IOException(Connect Timeout or ReadTime out)
   5. Request HTTP GET:- http://localhost:8080/demo/v2/creditCardPayments
   This end point list all credit card payments detected (part of request in assignment)
   Sample Response(With one transaction couple) :-
+  ```json
   {
     "credit_card_payments": [
       {
@@ -90,7 +91,7 @@ in case of any IOException(Connect Timeout or ReadTime out)
 
      ]
    }
-
+   ```
   6. Request HTTP GET:- http://localhost:8080/demo/v2/getProjectedTransactionsForMonth
   This end point was added to support projected transactions of current or any future month.
   Projected Transactions are done based on transactions in month prior to current month
@@ -99,6 +100,7 @@ in case of any IOException(Connect Timeout or ReadTime out)
   This end point supports query param as well(http://localhost:8080/demo/v2/getProjectedTransactionsForMonth?monthOfYear=2017-06).
   If query param monthOfYear is not provided it defaults to current month.Support format of value is "yyyy-dd"
   Sample response:-
+  ```json
   {
     "actual": [
       {
@@ -157,6 +159,7 @@ in case of any IOException(Connect Timeout or ReadTime out)
        }
       ]
    }
+   ```
 
 
 
