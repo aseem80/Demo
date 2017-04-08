@@ -23,7 +23,7 @@ The application can be run as per following:-
 2. Command line (After jar is built with mvn clean install) :- java -jar Demo-1.0-SNAPSHOT.jar
 3. Intellij/Eclipse (Run CodingAssignmentApp)
 
-### GetAllTransactions DataSource###
+### GetAllTransactions DataSource ###
 
 The application used a Rest Client to get All transactions and has been configured to Retry 3 times with Back-off-policy
 in case of any IOException(Connect Timeout or ReadTime out)
