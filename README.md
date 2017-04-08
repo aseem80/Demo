@@ -30,7 +30,7 @@ in case of any IOException(Connect Timeout or ReadTime out)
 
 ### Rest End Points ###
 
-1. Request HTTP GET :- http://localhost:8080/demo/v2/monthlySummary
+1. Request HTTP GET :- http://localhost:8080/demo/v2/monthlySummary <br />
  Sample Response :-
  ```json
  {
@@ -46,18 +46,18 @@ in case of any IOException(Connect Timeout or ReadTime out)
   ```
   Average is calculated by adding monthly income and expense and dividing by number of periods
 
-  2. Request HTTP GET:- http://localhost:8080/demo/v2/monthlySummary?ignore-category=donuts
+  2. Request HTTP GET:- http://localhost:8080/demo/v2/monthlySummary?ignore-category=donuts  <br />
   Query Param ignore-category=donuts will ignore any expense and refund from merchants described in requirements
 
-  3. Request HTTP GET:- http://localhost:8080/demo/v2/monthlySummary?ignore-cc-payments=true
+  3. Request HTTP GET:- http://localhost:8080/demo/v2/monthlySummary?ignore-cc-payments=true <br />
   Query Param ignore-cc-payments=true will ignore credit card payments from checking and credit card accounts based on
   criteria of amounts and 24 hrs period as per requirments
 
-  4. Request HTTP GET:- http://localhost:8080/demo/v2/monthlySummary?ignore-cc-payments=true&ignore-category=donuts
+  4. Request HTTP GET:- http://localhost:8080/demo/v2/monthlySummary?ignore-cc-payments=true&ignore-category=donuts <br />
   Both query params ignore-category=donuts and ignore-cc-payments=true are supported if provided together.
 
-  5. Request HTTP GET:- http://localhost:8080/demo/v2/creditCardPayments
-  This end point list all credit card payments detected (part of request in assignment)
+  5. Request HTTP GET:- http://localhost:8080/demo/v2/creditCardPayments <br />
+  This end point list all credit card payments detected (part of request in assignment) <br />
   Sample Response(With one transaction couple) :-
   ```json
   {
@@ -92,13 +92,14 @@ in case of any IOException(Connect Timeout or ReadTime out)
      ]
    }
    ```
-  6. Request HTTP GET:- http://localhost:8080/demo/v2/getProjectedTransactionsForMonth
+  6. Request HTTP GET:- http://localhost:8080/demo/v2/getProjectedTransactionsForMonth <br />
   This end point was added to support projected transactions of current or any future month.
   Projected Transactions are done based on transactions in month prior to current month
   (for which data is available from API exposed). The reason of this month chosen is to be as close in time to income
-  and spending habit.
-  This end point supports query param as well(http://localhost:8080/demo/v2/getProjectedTransactionsForMonth?monthOfYear=2017-06).
-  If query param monthOfYear is not provided it defaults to current month.Support format of value is "yyyy-dd"
+  and spending habit. <br />
+  This end point supports query param as well(http://localhost:8080/demo/v2/getProjectedTransactionsForMonth?monthOfYear=2017-06) <br />
+  If query param monthOfYear is not provided it defaults to current month. <br />
+  Supported format of value is "yyyy-dd" <br />
   Sample response:-
   ```json
   {
